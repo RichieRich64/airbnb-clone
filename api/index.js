@@ -19,18 +19,27 @@ const app = express();
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = process.env.JWT_SECRET;
 
+const allowedOrigins = [
+  'https://airbnb-frontend-vgwj.onrender.com/',
+  'http://127.0.0.1:5173', 
+  'http://localhost:5173', 
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+};
+
 // app.use(express.json({ limit: '100mb' }));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname+'/uploads'));
-app.use(cors({
-  credentials: true,
-  origin: [
-    'http://127.0.0.1:5173', 
-    'http://localhost:5173', 
-    'https://airbnb-frontend-vgwj.onrender.com/'
-  ],
-}));
+app.use(cors(corsOptions));
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
